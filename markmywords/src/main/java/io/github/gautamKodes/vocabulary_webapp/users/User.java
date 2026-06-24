@@ -57,5 +57,14 @@ public class User {
         return createdAt;
     }
 
+    public User(){}
+
+    public User(String email, String username, String provider, String providerId){
+        this.email = email;
+        this.username = username;
+        this.provider = provider;
+        this.providerId = providerId;
+    }
+
 
 }

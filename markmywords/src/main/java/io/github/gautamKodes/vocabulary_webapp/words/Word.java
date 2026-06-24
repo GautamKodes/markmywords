@@ -26,4 +26,11 @@ public class Word {
     public String getSentence(){
         return sentence;
     }
+    public Word(){}
+
+    public Word(String word, String type, String sentence){
+        this.word = word;
+        this.type = type;
+        this.sentence = sentence;
+    }
 }
