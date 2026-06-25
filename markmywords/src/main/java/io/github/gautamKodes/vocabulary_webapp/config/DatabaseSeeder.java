@@ -29,9 +29,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception{
 
         if(wordsRepository.count()==0){
-            wordsRepository.save(new Word("Meticulous", "adjective", "Showing great attention to detail; very careful and precise."));
-            wordsRepository.save(new Word("Ephemeral", "adjective", "Lasting for a very short time."));
-            wordsRepository.save(new Word("Obfuscate", "verb", "Render obscure, unclear, or unintelligible."));
+            wordsRepository.save(new Word("Meticulous", "adjective", "Showing great attention to detail; very careful and precise.", "Showing great attention to detail; very careful and precise."));
+            wordsRepository.save(new Word("Ephemeral", "adjective", "Lasting for a very short time.", "Lasting for a very short time."));
+            wordsRepository.save(new Word("Obfuscate", "verb", "Render obscure, unclear, or unintelligible.", "Render obscure, unclear, or unintelligible."));
             System.out.println("Database seeded with words");
         }
 

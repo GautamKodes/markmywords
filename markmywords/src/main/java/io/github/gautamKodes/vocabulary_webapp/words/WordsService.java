@@ -21,6 +21,7 @@ public class WordsService {
     public Optional<Word> getWord(Long id){
         return wordsRepository.findById(id);
     }
+
     public String validateSentence(Long wordId, String sentence){
         Word word = wordsRepository.findById(wordId)
                 .orElseThrow(() -> new IllegalArgumentException("Word cannot be located"));
@@ -31,6 +32,24 @@ public class WordsService {
                 .body(requestPayload)
                 .retrieve()
                 .body(ValidationResponse.class);
+
+                if (responsePayload != null){
+                    return responsePayload.getResult();
+                } else {
+                    return "No response from the validation service";
+                }
+    }
+
+    public String validateMeaning(Long wordId, String meaning){
+        Word word = wordsRepository.findById(wordId)
+                .orElseThrow(() -> new IllegalArgumentException("Word not found in database"));
+
+        ValidateMeaningRequest requesPayload = new ValidateMeaningRequest(word.getWord(), meaning);
+
+        ValidateMeaningResponse responsePayload = restClient.post().uri("http://localhost:8000/validateMeaning")
+                .body(requesPayload)
+                .retrieve()
+                .body(ValidateMeaningResponse.class);
 
                 if (responsePayload != null){
                     return responsePayload.getResult();

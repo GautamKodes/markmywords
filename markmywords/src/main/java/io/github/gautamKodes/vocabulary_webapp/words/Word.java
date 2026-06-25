@@ -13,6 +13,7 @@ public class Word {
     private String word;
     private String type;
     private String sentence;
+    private String meaning;
 
     public Long getId(){
         return id;
@@ -26,11 +27,15 @@ public class Word {
     public String getSentence(){
         return sentence;
     }
+    public String getMeaning(){
+        return meaning;
+    }
     public Word(){}
 
-    public Word(String word, String type, String sentence){
+    public Word(String word, String type, String sentence, String meaning){
         this.word = word;
         this.type = type;
         this.sentence = sentence;
+        this.meaning = meaning;
     }
 }

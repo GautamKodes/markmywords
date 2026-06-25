@@ -24,4 +24,9 @@ public class WordsController {
     public String validateWord(@PathVariable Long id, @RequestBody String sentence){
         return wordsService.validateSentence(id, sentence);
     }
+
+    @PostMapping("/{id}/validate_meaning")
+    public String validateMeaning(@PathVariable Long id, @RequestBody String meaning){
+        return wordsService.validateMeaning(id, meaning);
+    }
 }
