@@ -1,10 +1,7 @@
 package io.github.gautamKodes.vocabulary_webapp.words;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -21,5 +18,10 @@ public class WordsController {
     @GetMapping("/{id}")
     public Optional<Word> getWord(@PathVariable Long id){
         return wordsService.getWord(id);
+    }
+
+    @PostMapping("/{id}/validate")
+    public String validateWord(@PathVariable Long id, @RequestBody String sentence){
+        return wordsService.validateSentence(id, sentence);
     }
 }

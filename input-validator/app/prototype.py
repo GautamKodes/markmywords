@@ -10,7 +10,7 @@ prompt = ChatPromptTemplate.from_messages([
     ("system",  "You are a vocabulary tutor. The user is learning the word '{word}'."
      "They have written a sentence using this word."
      "Check is the sentence uses the word correctly."
-     "Reply with: CORRECT or INCORRECT, followed by a brief explanation if incorrect."),
+     "Reply with: only CORRECT if correct or if incorrect then a brief explanation if incorrect."),
     ("human", "{sentence}")
 ])
 
