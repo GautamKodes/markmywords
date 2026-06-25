@@ -1,19 +1,9 @@
-import os
-# from dotenv import load_dotenv
-# from pathlib import Path
-# from langchain_openai import ChatOpenAI
-# from langchain_core.prompts import ChatPromptTemplate
-# from langchain_google_genai import ChatGoogleGenerativeAI
+from fastapi import FastAPI
+from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
 
-# load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 
-# llm = ChatOpenAI(
-#     model="openrouter/fusion",  # Any free model on OpenRouter
-#     openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-#     openai_api_base="https://openrouter.ai/api/v1",
-# )
 llm = ChatOllama(model="llama3.1:latest")
 
 prompt = ChatPromptTemplate.from_messages([
@@ -26,8 +16,17 @@ prompt = ChatPromptTemplate.from_messages([
 
 chain = prompt | llm
 
-word = "Hard"
-sentence = "We are walking hard to hard"
+#Backend
+class ValidationReq(BaseModel):
+    word: str
+    sentence: str
 
-response = chain.invoke({"word": word, "sentence": sentence})
-print(response.content)
+app = FastAPI()
+
+@app.post("/validate")
+def validate(request: ValidationReq):
+    response = chain.invoke({
+        "word": request.word,
+        "sentence": request.sentence
+    })
+    return {"result": response.content}

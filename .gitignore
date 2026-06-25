@@ -3,3 +3,5 @@
 .env
 MarkMyWords.md
 ROADMAP.md
+__pycache__/
+*.pyc
