@@ -25,6 +25,39 @@
     </script>
     
     <style>
+        /* Premium Subtle Animated Dot Grid Background */
+        .ambient-grid-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            user-select: none;
+            z-index: -2;
+            overflow: hidden;
+            animation: grid-breathe 20s ease-in-out infinite alternate;
+        }
+        .ambient-dot-grid {
+            background-image: radial-gradient(rgba(26, 28, 28, 0.28) 1px, transparent 1px);
+            background-size: 28px 28px;
+            animation: grid-drift 90s linear infinite;
+            will-change: transform;
+        }
+        @keyframes grid-drift {
+            from {
+                transform: translate3d(0, 0, 0);
+            }
+            to {
+                transform: translate3d(-28px, -28px, 0);
+            }
+        }
+        @keyframes grid-breathe {
+            0% {
+                opacity: 0.55;
+            }
+            100% {
+                opacity: 0.95;
+            }
+        }
+
         body {
             background-color: #FAF8F6; /* Warm off-white background */
             transition: background-color 0.8s ease-in-out;
@@ -161,6 +194,11 @@
     </style>
 </head>
 <body class="font-sans text-[#1A1C1C] min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+    <!-- Premium Subtle Animated Dot Grid Background -->
+    <div id="ambient-grid-bg" class="ambient-grid-container">
+        <div class="ambient-dot-grid w-[120%] h-[120%] absolute -top-[10%] -left-[10%]"></div>
+    </div>
+
     <!-- Canvas for high-performance particle celebrations and cursor trails -->
     <canvas id="celebration-canvas"></canvas>
 
@@ -202,9 +240,8 @@
                         WHAT DOES THIS WORD MEAN?
                     </label>
                     <div class="relative w-full mb-6">
-                        <input id="guess-input" type="text" placeholder="Type the meaning here..." 
-                               class="w-full p-4 pr-12 neo-border neo-shadow rounded-xl font-sans text-base focus:outline-none focus:ring-0 bg-white placeholder-gray-400"/>
-                        <span class="absolute right-4 top-4 text-gray-400 material-symbols-outlined">edit</span>
+                        <textarea id="guess-input" rows="1" placeholder="Type the meaning here..." 
+                                  class="w-full p-4 neo-border neo-shadow rounded-xl font-sans text-base focus:outline-none focus:ring-0 bg-white placeholder-gray-400 resize-none overflow-hidden h-[58px] min-h-[58px]"></textarea>
                     </div>
                     <button id="submit-guess-btn" onclick="submitGuess()" class="px-8 py-3 bg-white neo-border neo-shadow rounded-xl font-bold font-sans tracking-wide neo-btn uppercase shine-sweep shine-sweep-active">
                         SUBMIT GUESS
@@ -241,8 +278,8 @@
                         YOUR GUESS AT THE MEANING
                     </label>
                     <div class="bg-[#FDE8E5] neo-border rounded-xl p-4 flex justify-between items-center">
-                        <span id="incorrect-user-guess" class="font-sans font-medium text-gray-700">loading...</span>
-                        <div class="w-6 h-6 rounded-full bg-[#A82222] flex items-center justify-center text-white">
+                        <span id="incorrect-user-guess" class="font-sans font-medium text-gray-700 break-all flex-1 mr-4">loading...</span>
+                        <div class="w-6 h-6 rounded-full bg-[#A82222] flex items-center justify-center text-white flex-shrink-0">
                             <span class="material-symbols-outlined text-sm font-bold">close</span>
                         </div>
                     </div>
@@ -300,8 +337,8 @@
                                 YOUR GUESS AT THE MEANING
                             </span>
                             <div class="bg-[#E7F3EC] neo-border rounded-xl p-3 flex justify-between items-center">
-                                <span id="correct-user-guess" class="font-sans font-medium text-xs text-gray-700">loading...</span>
-                                <div class="w-4 h-4 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white">
+                                <span id="correct-user-guess" class="font-sans font-medium text-xs text-gray-700 break-all flex-1 mr-4">loading...</span>
+                                <div class="w-4 h-4 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
                                     <span class="material-symbols-outlined text-[10px] font-bold">check</span>
                                 </div>
                             </div>
@@ -353,8 +390,8 @@
                     <div id="sentence-slot-1" class="hidden">
                         <label class="block text-[10px] font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-2">SENTENCE 01</label>
                         <div class="bg-[#E7F3EC] neo-border rounded-xl p-4 flex justify-between items-center shadow-[2px_2px_0px_0px_#1A1C1C]">
-                            <span id="sentence-text-1" class="font-sans text-sm text-gray-700">loading...</span>
-                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white">
+                            <span id="sentence-text-1" class="font-sans text-sm text-gray-700 break-all flex-1 mr-4">loading...</span>
+                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
                                 <span class="material-symbols-outlined text-xs font-bold">check</span>
                             </div>
                         </div>
@@ -364,8 +401,8 @@
                     <div id="sentence-slot-2" class="hidden">
                         <label class="block text-[10px] font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-2">SENTENCE 02</label>
                         <div class="bg-[#E7F3EC] neo-border rounded-xl p-4 flex justify-between items-center shadow-[2px_2px_0px_0px_#1A1C1C]">
-                            <span id="sentence-text-2" class="font-sans text-sm text-gray-700">loading...</span>
-                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white">
+                            <span id="sentence-text-2" class="font-sans text-sm text-gray-700 break-all flex-1 mr-4">loading...</span>
+                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
                                 <span class="material-symbols-outlined text-xs font-bold">check</span>
                             </div>
                         </div>
@@ -375,8 +412,8 @@
                     <div id="sentence-slot-3" class="hidden">
                         <label class="block text-[10px] font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-2">SENTENCE 03</label>
                         <div class="bg-[#E7F3EC] neo-border rounded-xl p-4 flex justify-between items-center shadow-[2px_2px_0px_0px_#1A1C1C]">
-                            <span id="sentence-text-3" class="font-sans text-sm text-gray-700">loading...</span>
-                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white">
+                            <span id="sentence-text-3" class="font-sans text-sm text-gray-700 break-all flex-1 mr-4">loading...</span>
+                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
                                 <span class="material-symbols-outlined text-xs font-bold">check</span>
                             </div>
                         </div>
@@ -386,8 +423,8 @@
                     <div id="sentence-slot-4" class="hidden">
                         <label class="block text-[10px] font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-2">SENTENCE 04</label>
                         <div class="bg-[#E7F3EC] neo-border rounded-xl p-4 flex justify-between items-center shadow-[2px_2px_0px_0px_#1A1C1C]">
-                            <span id="sentence-text-4" class="font-sans text-sm text-gray-700">loading...</span>
-                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white">
+                            <span id="sentence-text-4" class="font-sans text-sm text-gray-700 break-all flex-1 mr-4">loading...</span>
+                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
                                 <span class="material-symbols-outlined text-xs font-bold">check</span>
                             </div>
                         </div>
@@ -397,8 +434,8 @@
                     <div id="sentence-slot-5" class="hidden">
                         <label class="block text-[10px] font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-2">SENTENCE 05</label>
                         <div class="bg-[#E7F3EC] neo-border rounded-xl p-4 flex justify-between items-center shadow-[2px_2px_0px_0px_#1A1C1C]">
-                            <span id="sentence-text-5" class="font-sans text-sm text-gray-700">loading...</span>
-                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white">
+                            <span id="sentence-text-5" class="font-sans text-sm text-gray-700 break-all flex-1 mr-4">loading...</span>
+                            <div class="w-5 h-5 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
                                 <span class="material-symbols-outlined text-xs font-bold">check</span>
                             </div>
                         </div>
@@ -410,8 +447,8 @@
                             CURRENT ATTEMPT
                         </label>
                         <div id="sentence-input-box" class="relative w-full neo-border neo-shadow rounded-xl bg-white flex items-center pr-3 transition-colors duration-200">
-                            <textarea id="sentence-input" rows="2" placeholder="Type your next sentence here..." 
-                                      class="w-full p-4 pr-24 border-0 focus:ring-0 focus:outline-none bg-transparent font-sans text-sm resize-none"></textarea>
+                            <textarea id="sentence-input" rows="1" placeholder="Type your next sentence here..." 
+                                      class="w-full p-4 pr-24 border-0 focus:ring-0 focus:outline-none bg-transparent font-sans text-sm resize-none overflow-hidden h-[52px] min-h-[52px]"></textarea>
                             <button onclick="submitSentence()" id="sentence-submit-btn" 
                                     class="absolute right-3 px-4 py-2 bg-white neo-border neo-shadow-sm rounded-lg font-bold font-sans text-xs uppercase neo-btn-sm flex items-center justify-center min-w-[70px] shine-sweep shine-sweep-active">
                                 <span id="sentence-btn-text">SUBMIT</span>
@@ -565,28 +602,39 @@
 
                     const playWomp = (startTime, startFreq, endFreq, duration) => {
                         const osc = this.ctx.createOscillator();
+                        const oscHarmonic = this.ctx.createOscillator();
                         const gainNode = this.ctx.createGain();
                         const filter = this.ctx.createBiquadFilter();
 
+                        // Main low fundamental voice
                         osc.type = 'triangle';
                         osc.frequency.setValueAtTime(startFreq, startTime);
                         osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
 
-                        filter.type = 'bandpass';
-                        filter.Q.setValueAtTime(3.0, startTime);
-                        filter.frequency.setValueAtTime(800, startTime);
-                        filter.frequency.exponentialRampToValueAtTime(300, startTime + duration);
+                        // Octave harmonic voice to ensure punch and clarity on small/laptop speakers
+                        oscHarmonic.type = 'sine';
+                        oscHarmonic.frequency.setValueAtTime(startFreq * 2, startTime);
+                        oscHarmonic.frequency.exponentialRampToValueAtTime(endFreq * 2, startTime + duration);
+
+                        // Resonant lowpass filter instead of bandpass, to keep fundamentals completely unattenuated
+                        filter.type = 'lowpass';
+                        filter.Q.setValueAtTime(2.0, startTime);
+                        filter.frequency.setValueAtTime(1000, startTime);
+                        filter.frequency.exponentialRampToValueAtTime(450, startTime + duration);
 
                         gainNode.gain.setValueAtTime(0, startTime);
-                        gainNode.gain.linearRampToValueAtTime(0.25, startTime + 0.02);
+                        gainNode.gain.linearRampToValueAtTime(0.8, startTime + 0.02);
                         gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
                         osc.connect(filter);
+                        oscHarmonic.connect(filter);
                         filter.connect(gainNode);
                         gainNode.connect(this.ctx.destination);
 
                         osc.start(startTime);
+                        oscHarmonic.start(startTime);
                         osc.stop(startTime + duration + 0.1);
+                        oscHarmonic.stop(startTime + duration + 0.1);
                     };
 
                     // Comical double "womp-womp"
@@ -634,23 +682,40 @@
                     this.init();
                     const now = this.ctx.currentTime;
                     
+                    // Voice 1: Low rubbery fundamental
                     const osc = this.ctx.createOscillator();
                     const gainNode = this.ctx.createGain();
-                    
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(170, now);
                     osc.frequency.linearRampToValueAtTime(230, now + 0.08);
                     osc.frequency.exponentialRampToValueAtTime(130, now + 0.25);
                     
                     gainNode.gain.setValueAtTime(0, now);
-                    gainNode.gain.linearRampToValueAtTime(0.2, now + 0.01);
+                    gainNode.gain.linearRampToValueAtTime(0.8, now + 0.01);
                     gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                    
+                    // Voice 2: Octave harmonic to make it punchy and highly audible on laptop speakers
+                    const oscHarmonic = this.ctx.createOscillator();
+                    const gainNodeHarmonic = this.ctx.createGain();
+                    oscHarmonic.type = 'triangle';
+                    oscHarmonic.frequency.setValueAtTime(340, now);
+                    oscHarmonic.frequency.linearRampToValueAtTime(460, now + 0.08);
+                    oscHarmonic.frequency.exponentialRampToValueAtTime(260, now + 0.25);
+                    
+                    gainNodeHarmonic.gain.setValueAtTime(0, now);
+                    gainNodeHarmonic.gain.linearRampToValueAtTime(0.4, now + 0.01);
+                    gainNodeHarmonic.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
                     
                     osc.connect(gainNode);
                     gainNode.connect(this.ctx.destination);
                     
+                    oscHarmonic.connect(gainNodeHarmonic);
+                    gainNodeHarmonic.connect(this.ctx.destination);
+                    
                     osc.start(now);
+                    oscHarmonic.start(now);
                     osc.stop(now + 0.3);
+                    oscHarmonic.stop(now + 0.3);
                 } catch (e) {
                     console.warn('Audio synthesis failed:', e);
                 }
@@ -669,39 +734,11 @@
                 this.resizeCanvas();
                 window.addEventListener('resize', () => this.resizeCanvas());
                 
-                // Cursor trail listener
-                document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
             }
             
             resizeCanvas() {
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
-            }
-            
-            handleMouseMove(e) {
-                const correctVisible = !document.getElementById('state-correct').classList.contains('hidden');
-                const practiceVisible = !document.getElementById('state-practice').classList.contains('hidden');
-                
-                if (correctVisible || practiceVisible) {
-                    // Spawn cursor trail sparkles
-                    for (let i = 0; i < 2; i++) {
-                        this.spawnParticle({
-                            x: e.clientX,
-                            y: e.clientY,
-                            type: 'trail',
-                            vx: (Math.random() - 0.5) * 1.5,
-                            vy: (Math.random() - 0.5) * 1.5 - 0.5,
-                            gravity: 0.02,
-                            drag: 0.98,
-                            color: `hsl(${Math.random() * 360}, 90%, 70%)`,
-                            size: Math.random() * 3 + 2,
-                            life: 1.0,
-                            decay: Math.random() * 0.03 + 0.02,
-                            wobble: Math.random() * Math.PI,
-                            wobbleSpeed: 0.1
-                        });
-                    }
-                }
             }
             
             spawnParticle(p) {
@@ -1247,6 +1284,16 @@
                 }
             }
 
+            // Show/hide the ambient dot grid background based on the state page
+            const gridBg = document.getElementById('ambient-grid-bg');
+            if (gridBg) {
+                if (stateName === 'correct' || stateName === 'incorrect') {
+                    gridBg.classList.add('hidden');
+                } else {
+                    gridBg.classList.remove('hidden');
+                }
+            }
+
             if (stateName === 'guessing') {
                 document.getElementById('state-guessing').classList.remove('hidden');
             } else if (stateName === 'incorrect') {
@@ -1313,7 +1360,9 @@
                 document.getElementById('practice-word-def').innerText = wordData.meaning || 'No definition.';
 
                 // Reset guess input
-                document.getElementById('guess-input').value = '';
+                const guessInputEl = document.getElementById('guess-input');
+                guessInputEl.value = '';
+                guessInputEl.style.height = 'auto';
                 
                 showState('guessing');
                 
@@ -1324,12 +1373,39 @@
             }
         }
 
+        // Helper to bind auto-expanding textareas with optional Enter-to-submit keybind
+        function bindAutoExpand(textareaId, submitCallback) {
+            const textarea = document.getElementById(textareaId);
+            if (!textarea) return;
+
+            const adjustHeight = () => {
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            };
+
+            textarea.addEventListener('input', adjustHeight);
+            textarea.addEventListener('focus', adjustHeight);
+
+            if (submitCallback) {
+                textarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        submitCallback();
+                    }
+                });
+            }
+        }
+
         // Trigger on load
         window.addEventListener('DOMContentLoaded', () => {
             canvasEngine = new CanvasParticleEngine('celebration-canvas');
             rippleEngine = new CanvasRippleEngine('ripple-canvas');
             fetchWord(currentWordId);
             setupCardParallax();
+
+            // Set up auto-expanding textareas
+            bindAutoExpand('guess-input', submitGuess);
+            bindAutoExpand('sentence-input', submitSentence);
         });
 
         // Submit guess to backend (Star Rating evaluation)
@@ -1490,7 +1566,9 @@
                 document.getElementById(`sentence-text-${i}`).innerText = '';
             }
             
-            document.getElementById('sentence-input').value = '';
+            const sentenceInputEl = document.getElementById('sentence-input');
+            sentenceInputEl.value = '';
+            sentenceInputEl.style.height = 'auto';
             document.getElementById('sentence-input-box').className = "relative w-full neo-border neo-shadow rounded-xl bg-white flex items-center pr-3 transition-colors duration-200";
             document.getElementById('sentence-feedback').classList.add('hidden');
             
@@ -1586,7 +1664,9 @@
                     slot.classList.add('step-pop');
                     setTimeout(() => slot.classList.remove('step-pop'), 400);
 
-                    document.getElementById('sentence-input').value = '';
+                    const sentenceInputEl = document.getElementById('sentence-input');
+                    sentenceInputEl.value = '';
+                    sentenceInputEl.style.height = 'auto';
 
                     // Play bright sentence chime
                     AudioSynth.playSentenceSuccess();
@@ -1603,6 +1683,15 @@
                     spawnFloatingBadge(randText, btnX, btnY - 30, 'success');
 
                     if (currentSentenceIndex >= 5) {
+                        updatePracticeUI();
+                        
+                        // Scale pop the 5th stepper indicator to highlight completion
+                        const stepEl = document.getElementById('step-5');
+                        if (stepEl) {
+                            stepEl.classList.add('step-pop');
+                            setTimeout(() => stepEl.classList.remove('step-pop'), 400);
+                        }
+
                         document.getElementById('active-sentence-container').classList.add('hidden');
                         document.getElementById('placeholders-container').innerHTML = '';
                         
