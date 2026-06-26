@@ -27,6 +27,10 @@
     <style>
         body {
             background-color: #FAF8F6; /* Warm off-white background */
+            transition: background-color 0.8s ease-in-out;
+        }
+        header {
+            transition: background-color 0.8s ease-in-out;
         }
         /* Neo-Brutalist Border & Shadows */
         .neo-border {
@@ -34,26 +38,142 @@
         }
         .neo-shadow {
             box-shadow: 4px 4px 0px 0px #1A1C1C;
+            transition: box-shadow 0.15s ease-out, transform 0.15s ease-out;
         }
         .neo-shadow-sm {
             box-shadow: 2px 2px 0px 0px #1A1C1C;
+            transition: box-shadow 0.15s ease-out, transform 0.15s ease-out;
         }
         /* Buttons active state */
         .neo-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px 0px #1A1C1C;
+            transform: translate(2px, 2px) !important;
+            box-shadow: 2px 2px 0px 0px #1A1C1C !important;
         }
         .neo-btn-sm:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px 0px #1A1C1C;
+            transform: translate(1px, 1px) !important;
+            box-shadow: 1px 1px 0px 0px #1A1C1C !important;
         }
         /* Material Symbols Fill Customization */
         .material-fill {
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+
+        /* Upgraded Visuals: Comical Card Shake */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+            20%, 40%, 60%, 80% { transform: translateX(6px); }
+        }
+        .shake-card {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* Upgraded Visuals: 3D Parallax Tilt */
+        .tilt-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            will-change: transform, box-shadow;
+        }
+
+        /* Upgraded Visuals: Diagonal Shine Sweep (Runs exactly once upon generation) */
+        .shine-sweep {
+            position: relative;
+            overflow: hidden;
+        }
+        .shine-sweep::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 30%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.35) 30%,
+                rgba(255, 255, 255, 0.7) 50%,
+                rgba(255, 255, 255, 0.35) 70%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+        .shine-sweep-active::after {
+            animation: shine-sweep-anim 1.2s cubic-bezier(0.25, 1, 0.5, 1) 1 forwards;
+        }
+        @keyframes shine-sweep-anim {
+            0% { left: -60%; }
+            100% { left: 140%; }
+        }
+
+        /* Upgraded Visuals: Stepper Springy Scale Pop */
+        @keyframes scale-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+        .step-pop {
+            animation: scale-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        /* High-Performance Canvas Overlay */
+        #celebration-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* High-Performance Background Ripple Canvas */
+        #ripple-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Neo-Brutalist Physics-Based Floating Badges */
+        .floating-badge {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 3px solid #1A1C1C;
+            box-shadow: 4px 4px 0px 0px #1A1C1C;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            transform-origin: center;
+            will-change: transform, opacity;
+        }
+
+
+
     </style>
 </head>
-<body class="font-sans text-[#1A1C1C] min-h-screen flex flex-col justify-between">
+<body class="font-sans text-[#1A1C1C] min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+    <!-- Canvas for high-performance particle celebrations and cursor trails -->
+    <canvas id="celebration-canvas"></canvas>
+
+    <!-- Full-screen success background ripple canvas -->
+    <canvas id="ripple-canvas"></canvas>
+
+    <!-- GLOBAL HEADER -->
+    <header class="w-full bg-white border-b-2 border-[#1A1C1C] py-3 px-6 md:px-12 flex justify-between items-center">
+        <span class="text-lg font-bold font-serif tracking-tight text-gray-800">MarkMyWords</span>
+        <!-- settings and profile icons hidden for now -->
+        <div class="flex items-center gap-3"></div>
+    </header>
+
 
     <!-- MAIN APP CONTAINER -->
     <main class="flex-grow flex items-center justify-center py-8 px-4 w-full">
@@ -61,21 +181,10 @@
             
             <!-- ================= STATE 1: GUESSING THE MEANING ================= -->
             <div id="state-guessing" class="w-full">
-                <!-- Header -->
-                <div class="flex justify-between items-center mb-10">
-                    <span class="text-xl font-bold font-sans tracking-tight">MarkMyWords</span>
-                    <div class="flex gap-3">
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">settings</span>
-                        </button>
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">account_circle</span>
-                        </button>
-                    </div>
-                </div>
+
 
                 <!-- Word Card -->
-                <div class="bg-white neo-border neo-shadow rounded-2xl p-8 mb-8 relative overflow-hidden">
+                <div class="bg-white neo-border neo-shadow rounded-2xl p-8 mb-8 relative overflow-hidden tilt-card shine-sweep shine-sweep-active">
                     <div class="inline-block px-3 py-1 bg-white neo-border rounded-full text-xs font-bold font-sans uppercase tracking-wider mb-6">
                         <span id="guessing-word-type">loading...</span>
                     </div>
@@ -97,7 +206,7 @@
                                class="w-full p-4 pr-12 neo-border neo-shadow rounded-xl font-sans text-base focus:outline-none focus:ring-0 bg-white placeholder-gray-400"/>
                         <span class="absolute right-4 top-4 text-gray-400 material-symbols-outlined">edit</span>
                     </div>
-                    <button id="submit-guess-btn" onclick="submitGuess()" class="px-8 py-3 bg-white neo-border neo-shadow rounded-xl font-bold font-sans tracking-wide neo-btn uppercase">
+                    <button id="submit-guess-btn" onclick="submitGuess()" class="px-8 py-3 bg-white neo-border neo-shadow rounded-xl font-bold font-sans tracking-wide neo-btn uppercase shine-sweep shine-sweep-active">
                         SUBMIT GUESS
                     </button>
                 </div>
@@ -105,18 +214,7 @@
 
             <!-- ================= STATE 2: INCORRECT MEANING GUESS ================= -->
             <div id="state-incorrect" class="w-full hidden">
-                <!-- Header -->
-                <div class="flex justify-between items-center mb-8">
-                    <span class="text-xl font-bold font-sans tracking-tight">MarkMyWords</span>
-                    <div class="flex gap-3">
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">settings</span>
-                        </button>
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">account_circle</span>
-                        </button>
-                    </div>
-                </div>
+
 
                 <!-- Mastery Status Section -->
                 <div class="text-center mb-8">
@@ -128,7 +226,7 @@
                 </div>
 
                 <!-- Definition Card (Red/Pink) -->
-                <div class="bg-[#FDE8E5] neo-border neo-shadow rounded-2xl p-8 mb-8 text-center max-w-2xl mx-auto">
+                <div class="bg-[#FDE8E5] neo-border neo-shadow rounded-2xl p-8 mb-8 text-center max-w-2xl mx-auto tilt-card">
                     <div class="inline-block px-3 py-1 bg-white neo-border rounded-full text-xs font-bold font-sans uppercase tracking-wider mb-6">
                         DEFINITION
                     </div>
@@ -160,49 +258,27 @@
 
             <!-- ================= STATE 3: CORRECT MEANING GUESS ================= -->
             <div id="state-correct" class="w-full hidden">
-                <!-- Header with Navigation tabs -->
-                <div class="flex justify-between items-center mb-8">
-                    <div class="flex items-center gap-8">
-                        <span class="text-xl font-bold font-sans tracking-tight">MarkMyWords</span>
-                        <nav class="hidden md:flex gap-6 text-sm font-bold font-sans text-gray-400">
-                            <a href="#" class="text-[#1A1C1C] border-b-2 border-[#1A1C1C] pb-1">Learn</a>
-                            <a href="#" class="hover:text-[#1A1C1C]">Review</a>
-                            <a href="#" class="hover:text-[#1A1C1C]">Stats</a>
-                        </nav>
-                    </div>
-                    <div class="flex gap-3">
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">settings</span>
-                        </button>
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">account_circle</span>
-                        </button>
-                    </div>
-                </div>
+
 
                 <!-- Celebration & Streak Header -->
                 <div class="text-center mb-8">
-                    <!-- 5 filled green stars -->
-                    <div class="flex justify-center gap-1 mb-3 text-[#1E6B3F]">
-                        <span class="material-symbols-outlined text-2xl material-fill">star</span>
-                        <span class="material-symbols-outlined text-2xl material-fill">star</span>
-                        <span class="material-symbols-outlined text-2xl material-fill">star</span>
-                        <span class="material-symbols-outlined text-2xl material-fill">star</span>
-                        <span class="material-symbols-outlined text-2xl material-fill">star</span>
+                    <!-- 5 stars animated via JS -->
+                    <div id="success-stars-container" class="flex justify-center gap-1 mb-3 text-gray-200">
+                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
                     </div>
-                    <!-- Streak badge -->
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-white neo-border rounded-full text-xs font-extrabold font-sans uppercase tracking-wider mb-4 shadow-[2px_2px_0px_0px_#1A1C1C]">
-                        <span class="material-symbols-outlined text-sm text-orange-500 material-fill">local_fire_department</span>
-                        <span>3 OUT OF 3 STREAK</span>
-                    </div>
+
                     <h2 class="text-4xl font-bold font-serif mb-2">Splendid!</h2>
                     <p class="text-gray-500 font-sans font-medium">You mastered this word.</p>
                 </div>
 
                 <!-- Side-by-Side Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-3xl mx-auto items-stretch mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-3xl mx-auto items-stretch mb-8 mt-8">
                     <!-- Left Card: Word & Definition (Green) -->
-                    <div class="md:col-span-3 bg-[#E7F3EC] neo-border neo-shadow rounded-2xl p-6 flex flex-col justify-between relative">
+                    <div class="md:col-span-3 bg-white neo-border neo-shadow rounded-2xl p-6 flex flex-col justify-between relative tilt-card shine-sweep shine-sweep-active">
                         <div class="absolute top-6 right-6 text-[#1E6B3F]">
                             <span class="material-symbols-outlined text-2xl material-fill">check_circle</span>
                         </div>
@@ -218,7 +294,7 @@
                     </div>
 
                     <!-- Right Card: User Guess (White) -->
-                    <div class="md:col-span-2 bg-white neo-border neo-shadow rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="md:col-span-2 bg-white neo-border neo-shadow rounded-2xl p-6 flex flex-col justify-between tilt-card">
                         <div>
                             <span class="block text-[10px] font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-4">
                                 YOUR GUESS AT THE MEANING
@@ -231,7 +307,7 @@
                             </div>
                         </div>
                         <div class="mt-6 text-right">
-                            <button onclick="goToPractice()" class="px-5 py-2.5 bg-white neo-border neo-shadow-sm rounded-xl font-bold font-sans text-xs tracking-wide neo-btn flex items-center gap-1.5 ml-auto">
+                            <button onclick="loadNextWord()" class="px-5 py-2.5 bg-white neo-border neo-shadow-sm rounded-xl font-bold font-sans text-xs tracking-wide neo-btn flex items-center gap-1.5 ml-auto">
                                 <span>Continue</span>
                                 <span class="material-symbols-outlined text-xs">arrow_forward</span>
                             </button>
@@ -242,18 +318,7 @@
 
             <!-- ================= STATE 4: PRACTICE ARENA ================= -->
             <div id="state-practice" class="w-full hidden">
-                <!-- Header -->
-                <div class="flex justify-between items-center mb-8">
-                    <span class="text-xl font-bold font-sans tracking-tight">MarkMyWords</span>
-                    <div class="flex gap-3">
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">settings</span>
-                        </button>
-                        <button class="w-10 h-10 rounded-full bg-white neo-border neo-shadow-sm flex items-center justify-center neo-btn-sm">
-                            <span class="material-symbols-outlined text-lg">account_circle</span>
-                        </button>
-                    </div>
-                </div>
+
 
                 <!-- Titles -->
                 <div class="text-center mb-6">
@@ -348,7 +413,7 @@
                             <textarea id="sentence-input" rows="2" placeholder="Type your next sentence here..." 
                                       class="w-full p-4 pr-24 border-0 focus:ring-0 focus:outline-none bg-transparent font-sans text-sm resize-none"></textarea>
                             <button onclick="submitSentence()" id="sentence-submit-btn" 
-                                    class="absolute right-3 px-4 py-2 bg-white neo-border neo-shadow-sm rounded-lg font-bold font-sans text-xs uppercase neo-btn-sm flex items-center justify-center min-w-[70px]">
+                                    class="absolute right-3 px-4 py-2 bg-white neo-border neo-shadow-sm rounded-lg font-bold font-sans text-xs uppercase neo-btn-sm flex items-center justify-center min-w-[70px] shine-sweep shine-sweep-active">
                                 <span id="sentence-btn-text">SUBMIT</span>
                             </button>
                         </div>
@@ -382,10 +447,6 @@
         </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="text-center py-6 border-t border-gray-200 bg-white text-xs font-sans text-gray-400">
-        &copy; 2026 MarkMyWords. Built for prototypes.
-    </footer>
 
     <!-- CLIENT LOGIC -->
     <script>
@@ -394,6 +455,781 @@
         let wordData = null;
         let currentSentenceIndex = 0; // 0 means starting, max 5
         let correctSentences = [];
+        let canvasEngine = null;
+        let rippleEngine = null;
+
+        // Web Audio API Synthesizer for high-fidelity retro & game sound effects (offline-friendly)
+        const AudioSynth = {
+            ctx: null,
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+
+            // Plays the chime for a single star (index 0 to 4) using pentatonic scale notes
+            playStarChime(index) {
+                try {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    
+                    // Pentatonic scale in high register: C6 (1046.50), D6 (1174.66), E6 (1318.51), G6 (1567.98), A6 (1760.00)
+                    const notes = [1046.50, 1174.66, 1318.51, 1567.98, 1760.00];
+                    const freq = notes[index % notes.length];
+
+                    // Layer 1: Warm crystal tone (Triangle wave)
+                    const osc1 = this.ctx.createOscillator();
+                    const gain1 = this.ctx.createGain();
+                    osc1.type = 'triangle';
+                    osc1.frequency.setValueAtTime(freq, now);
+                    
+                    gain1.gain.setValueAtTime(0, now);
+                    gain1.gain.linearRampToValueAtTime(0.12, now + 0.005);
+                    gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+
+                    // Layer 2: Metal strike tine (Sine wave with quick pitch decay)
+                    const osc2 = this.ctx.createOscillator();
+                    const gain2 = this.ctx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(freq * 2, now); // Octave higher
+                    osc2.frequency.exponentialRampToValueAtTime(freq, now + 0.08); // Slide to fundamental
+
+                    gain2.gain.setValueAtTime(0, now);
+                    gain2.gain.linearRampToValueAtTime(0.08, now + 0.002);
+                    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+
+                    osc1.connect(gain1);
+                    gain1.connect(this.ctx.destination);
+                    
+                    osc2.connect(gain2);
+                    gain2.connect(this.ctx.destination);
+
+                    osc1.start(now);
+                    osc2.start(now);
+                    osc1.stop(now + 0.6);
+                    osc2.stop(now + 0.2);
+                } catch (e) {
+                    console.warn('Audio synthesis failed:', e);
+                }
+            },
+
+            // Plays a lush, multi-voice major chord flourish when all stars are lit
+            playFinalSuccessFlourish() {
+                try {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    
+                    // C major chord: C4 (261.63), G4 (392.00), C5 (523.25), E5 (659.25), G5 (783.99), C6 (1046.50)
+                    const notes = [261.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                    
+                    notes.forEach((freq, index) => {
+                        const osc = this.ctx.createOscillator();
+                        const gainNode = this.ctx.createGain();
+                        const filter = this.ctx.createBiquadFilter();
+                        
+                        filter.type = 'lowpass';
+                        filter.frequency.setValueAtTime(1200, now);
+                        
+                        osc.type = index % 2 === 0 ? 'triangle' : 'sine';
+                        osc.frequency.setValueAtTime(freq, now);
+                        osc.detune.setValueAtTime(Math.sin(index) * 8, now);
+                        
+                        const noteDelay = index * 0.03;
+                        const startTime = now + noteDelay;
+                        
+                        gainNode.gain.setValueAtTime(0, startTime);
+                        gainNode.gain.linearRampToValueAtTime(0.08, startTime + 0.02);
+                        gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.2);
+                        
+                        osc.connect(gainNode);
+                        gainNode.connect(filter);
+                        filter.connect(this.ctx.destination);
+                        
+                        osc.start(startTime);
+                        osc.stop(startTime + 1.5);
+                    });
+                } catch (e) {
+                    console.warn('Audio synthesis failed:', e);
+                }
+            },
+
+            // Plays a comical cartoon "womp-womp" descending slide on failure
+            playFailureWomp() {
+                try {
+                    this.init();
+                    const now = this.ctx.currentTime;
+
+                    const playWomp = (startTime, startFreq, endFreq, duration) => {
+                        const osc = this.ctx.createOscillator();
+                        const gainNode = this.ctx.createGain();
+                        const filter = this.ctx.createBiquadFilter();
+
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(startFreq, startTime);
+                        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
+
+                        filter.type = 'bandpass';
+                        filter.Q.setValueAtTime(3.0, startTime);
+                        filter.frequency.setValueAtTime(800, startTime);
+                        filter.frequency.exponentialRampToValueAtTime(300, startTime + duration);
+
+                        gainNode.gain.setValueAtTime(0, startTime);
+                        gainNode.gain.linearRampToValueAtTime(0.25, startTime + 0.02);
+                        gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+                        osc.connect(filter);
+                        filter.connect(gainNode);
+                        gainNode.connect(this.ctx.destination);
+
+                        osc.start(startTime);
+                        osc.stop(startTime + duration + 0.1);
+                    };
+
+                    // Comical double "womp-womp"
+                    playWomp(now, 280, 180, 0.28);
+                    playWomp(now + 0.20, 220, 140, 0.32);
+                } catch (e) {
+                    console.warn('Audio synthesis failed:', e);
+                }
+            },
+
+            // Plays a sparkling high-pitched double chime for sentence success
+            playSentenceSuccess() {
+                try {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    
+                    const playChime = (time, freq) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, time);
+                        
+                        gain.gain.setValueAtTime(0, time);
+                        gain.gain.linearRampToValueAtTime(0.12, time + 0.003);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.22);
+                        
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        
+                        osc.start(time);
+                        osc.stop(time + 0.25);
+                    };
+                    
+                    playChime(now, 1318.51); // E6
+                    playChime(now + 0.05, 1661.22); // G#6
+                } catch (e) {
+                    console.warn('Audio synthesis failed:', e);
+                }
+            },
+
+            // Plays a rubbery, comical cartoon "boing" for sentence failures
+            playSentenceFailure() {
+                try {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    
+                    const osc = this.ctx.createOscillator();
+                    const gainNode = this.ctx.createGain();
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(170, now);
+                    osc.frequency.linearRampToValueAtTime(230, now + 0.08);
+                    osc.frequency.exponentialRampToValueAtTime(130, now + 0.25);
+                    
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.2, now + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                    
+                    osc.connect(gainNode);
+                    gainNode.connect(this.ctx.destination);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } catch (e) {
+                    console.warn('Audio synthesis failed:', e);
+                }
+            }
+        };
+
+        // High-Performance hardware-accelerated Canvas Particle Engine (Premium 3D Confetti & Sparkles)
+        class CanvasParticleEngine {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.animationFrameId = null;
+                this.active = false;
+                
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                
+                // Cursor trail listener
+                document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+            }
+            
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            handleMouseMove(e) {
+                const correctVisible = !document.getElementById('state-correct').classList.contains('hidden');
+                const practiceVisible = !document.getElementById('state-practice').classList.contains('hidden');
+                
+                if (correctVisible || practiceVisible) {
+                    // Spawn cursor trail sparkles
+                    for (let i = 0; i < 2; i++) {
+                        this.spawnParticle({
+                            x: e.clientX,
+                            y: e.clientY,
+                            type: 'trail',
+                            vx: (Math.random() - 0.5) * 1.5,
+                            vy: (Math.random() - 0.5) * 1.5 - 0.5,
+                            gravity: 0.02,
+                            drag: 0.98,
+                            color: `hsl(${Math.random() * 360}, 90%, 70%)`,
+                            size: Math.random() * 3 + 2,
+                            life: 1.0,
+                            decay: Math.random() * 0.03 + 0.02,
+                            wobble: Math.random() * Math.PI,
+                            wobbleSpeed: 0.1
+                        });
+                    }
+                }
+            }
+            
+            spawnParticle(p) {
+                this.particles.push(p);
+                if (!this.active) {
+                    this.active = true;
+                    this.loop();
+                }
+            }
+            
+            triggerCelebration() {
+                const colors = [
+                    { front: '#FCD34D', back: '#D97706' }, // Premium Golds & Champagne
+                    { front: '#F59E0B', back: '#B45309' },
+                    { front: '#FEF3C7', back: '#FCD34D' },
+                    { front: '#88B08A', back: '#5B825D' }, // Sage Green
+                    { front: '#A7F3D0', back: '#6EE7B7' }, // Mint Green
+                    { front: '#34D399', back: '#059669' }, // Emerald
+                    { front: '#1E6B3F', back: '#114B2A' }, // Deep Forest
+                    { front: '#F6F0DD', back: '#D2C8A8' }, // Warm Cream
+                    { front: '#E2D9C2', back: '#B8AB8F' }, // Sand Stone
+                    { front: '#FCA5A5', back: '#EF4444' }, // Terracotta Clay
+                    { front: '#F87171', back: '#DC2626' }
+                ];
+                const W = window.innerWidth;
+                const H = window.innerHeight;
+                
+                // Dynamically calculate emitter origin based on active success visual component
+                let emitX = W / 2;
+                let emitY = H * 0.65;
+                
+                const successState = document.getElementById('state-correct');
+                const practiceCard = document.getElementById('practice-complete-card');
+                
+                if (successState && !successState.classList.contains('hidden')) {
+                    const rect = successState.getBoundingClientRect();
+                    emitX = rect.left + rect.width / 2;
+                    emitY = rect.top + rect.height * 0.75; // Emits from behind/center of the success cards
+                } else if (practiceCard && !document.getElementById('state-practice').classList.contains('hidden')) {
+                    const rect = practiceCard.getBoundingClientRect();
+                    emitX = rect.left + rect.width / 2;
+                    emitY = rect.top + rect.height / 2;
+                }
+                
+                const spawnBlast = (x, y, baseAngle, spread, count) => {
+                    for (let i = 0; i < count; i++) {
+                        const angle = baseAngle + (Math.random() * spread - spread / 2);
+                        const speed = Math.random() * 10 + 8; // Slightly reduced velocity for elegant fountain arches
+                        const colorObj = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        const shapes = ['rectangle', 'triangle', 'circle', 'sparkle'];
+                        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                        const size = Math.random() * 8 + 8;
+                        
+                        this.spawnParticle({
+                            x: x,
+                            y: y,
+                            type: 'confetti',
+                            shape: shape,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            gravity: Math.random() * 0.1 + 0.18,
+                            drag: 0.96,
+                            color: colorObj.front,
+                            backColor: colorObj.back,
+                            width: size,
+                            height: size * (shape === 'rectangle' ? (Math.random() * 0.4 + 1.1) : 1),
+                            life: 1.0,
+                            decay: Math.random() * 0.008 + 0.006,
+                            wobble: Math.random() * Math.PI * 2,
+                            wobbleSpeed: Math.random() * 0.08 + 0.03,
+                            rotationX: Math.random() * 360,
+                            rotationY: Math.random() * 360,
+                            rotationZ: Math.random() * 360,
+                            rotSpeedX: Math.random() * 8 - 4,
+                            rotSpeedY: Math.random() * 8 - 4,
+                            rotSpeedZ: Math.random() * 6 - 3
+                        });
+                    }
+                };
+                
+                // Cinematic triple-fountain spray arcing upwards and outwards
+                // Blast 1: Left fountain spray
+                spawnBlast(emitX, emitY, -Math.PI * 2.2 / 3, 0.3, 35);
+                
+                // Blast 2: Right fountain spray
+                setTimeout(() => {
+                    spawnBlast(emitX, emitY, -Math.PI * 0.8 / 3, 0.3, 35);
+                }, 100);
+                
+                // Blast 3: Center fountain burst
+                setTimeout(() => {
+                    spawnBlast(emitX, emitY, -Math.PI / 2, 0.5, 45);
+                }, 220);
+            }
+            
+            triggerMiniBurst(x, y) {
+                const colors = [
+                    { front: '#A7F3D0', back: '#6EE7B7' },
+                    { front: '#34D399', back: '#059669' },
+                    { front: '#1E6B3F', back: '#114B2A' },
+                    { front: '#FCD34D', back: '#D97706' },
+                    { front: '#F59E0B', back: '#B45309' },
+                    { front: '#F6F0DD', back: '#D2C8A8' }
+                ];
+                
+                for (let i = 0; i < 20; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 5 + 4;
+                    const colorObj = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    const shapes = ['rectangle', 'triangle', 'circle', 'sparkle'];
+                    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                    const size = Math.random() * 5 + 4;
+                    
+                    this.spawnParticle({
+                        x: x,
+                        y: y,
+                        type: 'confetti',
+                        shape: shape,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 2,
+                        gravity: 0.15,
+                        drag: 0.97,
+                        color: colorObj.front,
+                        backColor: colorObj.back,
+                        width: size,
+                        height: size,
+                        life: 1.0,
+                        decay: Math.random() * 0.02 + 0.015,
+                        wobble: Math.random() * Math.PI * 2,
+                        wobbleSpeed: 0.08,
+                        rotationX: Math.random() * 360,
+                        rotationY: Math.random() * 360,
+                        rotationZ: Math.random() * 360,
+                        rotSpeedX: Math.random() * 10 - 5,
+                        rotSpeedY: Math.random() * 10 - 5,
+                        rotSpeedZ: Math.random() * 8 - 4
+                    });
+                }
+            }
+            
+            triggerStarSparkle(x, y) {
+                for (let i = 0; i < 12; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 3 + 2;
+                    const size = Math.random() * 6 + 4;
+                    this.spawnParticle({
+                        x: x,
+                        y: y,
+                        type: 'confetti',
+                        shape: 'sparkle',
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        gravity: 0.1,
+                        drag: 0.98,
+                        color: '#FFD93D',
+                        backColor: '#F59E0B',
+                        width: size,
+                        height: size,
+                        life: 1.0,
+                        decay: Math.random() * 0.04 + 0.03,
+                        wobble: Math.random() * Math.PI * 2,
+                        wobbleSpeed: 0.1,
+                        rotationX: Math.random() * 360,
+                        rotationY: Math.random() * 360,
+                        rotationZ: Math.random() * 360,
+                        rotSpeedX: Math.random() * 12 - 6,
+                        rotSpeedY: Math.random() * 12 - 6,
+                        rotSpeedZ: Math.random() * 10 - 5
+                    });
+                }
+            }
+            
+            loop() {
+                if (this.particles.length === 0) {
+                    this.active = false;
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    return;
+                }
+                
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    
+                    p.vx *= p.drag;
+                    p.vy = p.vy * p.drag + p.gravity;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    
+                    p.wobble += p.wobbleSpeed;
+                    p.x += Math.sin(p.wobble) * 0.2;
+                    
+                    p.life -= p.decay;
+                    
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1);
+                        continue;
+                    }
+                    
+                    this.ctx.save();
+                    this.ctx.globalAlpha = p.life;
+                    this.ctx.translate(p.x, p.y);
+                    
+                    if (p.type === 'trail') {
+                        // Draw simple soft circle for mouse trails
+                        this.ctx.beginPath();
+                        this.ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+                        this.ctx.fillStyle = p.color;
+                        this.ctx.fill();
+                    } else if (p.type === 'confetti') {
+                        // Update 3D rotation angles
+                        p.rotationX += p.rotSpeedX;
+                        p.rotationY += p.rotSpeedY;
+                        p.rotationZ += p.rotSpeedZ;
+                        
+                        this.ctx.rotate(p.rotationZ * Math.PI / 180);
+                        
+                        // Calculate 3D scale factors
+                        const scaleX = Math.cos(p.rotationX * Math.PI / 180);
+                        const scaleY = Math.sin(p.rotationY * Math.PI / 180);
+                        this.ctx.scale(scaleX, scaleY);
+                        
+                        // Determine shading front/back
+                        const isFront = (scaleX * scaleY) >= 0;
+                        this.ctx.fillStyle = isFront ? p.color : p.backColor;
+                        
+                        if (p.shape === 'rectangle') {
+                            this.ctx.fillRect(-p.width / 2, -p.height / 2, p.width, p.height);
+                            this.ctx.lineWidth = 1.5;
+                            this.ctx.strokeStyle = '#1A1C1C';
+                            this.ctx.strokeRect(-p.width / 2, -p.height / 2, p.width, p.height);
+                        } else if (p.shape === 'triangle') {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(0, -p.height / 2);
+                            this.ctx.lineTo(p.width / 2, p.height / 2);
+                            this.ctx.lineTo(-p.width / 2, p.height / 2);
+                            this.ctx.closePath();
+                            this.ctx.fill();
+                            this.ctx.lineWidth = 1.5;
+                            this.ctx.strokeStyle = '#1A1C1C';
+                            this.ctx.stroke();
+                        } else if (p.shape === 'circle') {
+                            this.ctx.beginPath();
+                            this.ctx.arc(0, 0, p.width / 2, 0, Math.PI * 2);
+                            this.ctx.fill();
+                            this.ctx.lineWidth = 1.5;
+                            this.ctx.strokeStyle = '#1A1C1C';
+                            this.ctx.stroke();
+                        } else if (p.shape === 'sparkle') {
+                            this.ctx.beginPath();
+                            for (let j = 0; j < 4; j++) {
+                                this.ctx.lineTo(
+                                    Math.cos((j * 90) * Math.PI / 180) * p.width,
+                                    Math.sin((j * 90) * Math.PI / 180) * p.width
+                                );
+                                this.ctx.lineTo(
+                                    Math.cos((45 + j * 90) * Math.PI / 180) * (p.width * 0.3),
+                                    Math.sin((45 + j * 90) * Math.PI / 180) * (p.width * 0.3)
+                                );
+                            }
+                            this.ctx.closePath();
+                            this.ctx.fill();
+                            this.ctx.lineWidth = 1;
+                            this.ctx.strokeStyle = '#1A1C1C';
+                            this.ctx.stroke();
+                        }
+                    }
+                    
+                    this.ctx.restore();
+                }
+                
+                this.animationFrameId = requestAnimationFrame(() => this.loop());
+            }
+        }
+
+        // High-Performance hardware-accelerated Canvas Success Background Ripple Engine
+        class CanvasRippleEngine {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.ripples = [];
+                this.active = false;
+                this.animationFrameId = null;
+
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            triggerRipples() {
+                const cx = this.canvas.width / 2;
+                const cy = this.canvas.height / 2;
+                const maxR = Math.sqrt(cx * cx + cy * cy) + 50;
+
+                this.ripples = [
+                    {
+                        x: cx,
+                        y: cy,
+                        r: 0,
+                        maxR: maxR,
+                        speed: 6,
+                        accel: 1.06,
+                        borderWidth: 28,
+                        fillColor: '#A7F3D0',
+                        strokeColor: '#1A1C1C',
+                        isFill: true,
+                        delay: 0,
+                        started: false,
+                        triggerTime: performance.now()
+                    },
+                    {
+                        x: cx,
+                        y: cy,
+                        r: 0,
+                        maxR: maxR,
+                        speed: 6,
+                        accel: 1.06,
+                        borderWidth: 14,
+                        strokeColor: '#1A1C1C',
+                        isFill: false,
+                        delay: 120,
+                        started: false,
+                        triggerTime: performance.now()
+                    },
+                    {
+                        x: cx,
+                        y: cy,
+                        r: 0,
+                        maxR: maxR,
+                        speed: 6,
+                        accel: 1.06,
+                        borderWidth: 8,
+                        strokeColor: '#1A1C1C',
+                        isFill: false,
+                        delay: 240,
+                        started: false,
+                        triggerTime: performance.now()
+                    }
+                ];
+
+                if (!this.active) {
+                    this.active = true;
+                    this.loop();
+                }
+            }
+
+            loop() {
+                if (this.ripples.length === 0) {
+                    this.active = false;
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    return;
+                }
+
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const now = performance.now();
+
+                for (let i = 0; i < this.ripples.length; i++) {
+                    const r = this.ripples[i];
+                    const elapsed = now - r.triggerTime;
+
+                    if (elapsed < r.delay) {
+                        continue;
+                    }
+
+                    if (!r.started) {
+                        r.started = true;
+                    }
+
+                    // Update physics
+                    r.r += r.speed;
+                    r.speed *= r.accel;
+
+                    // Draw ripple
+                    this.ctx.save();
+                    
+                    if (r.isFill) {
+                        // Draw solid fill circle
+                        this.ctx.beginPath();
+                        this.ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+                        this.ctx.fillStyle = r.fillColor;
+                        this.ctx.fill();
+                    }
+
+                    // Draw outline stroke
+                    if (r.borderWidth > 0) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+                        this.ctx.lineWidth = r.borderWidth;
+                        this.ctx.strokeStyle = r.strokeColor;
+                        this.ctx.stroke();
+                    }
+
+                    this.ctx.restore();
+                }
+
+                // Check if Wave 1 (solid fill) has covered the screen
+                const solidRippleIndex = this.ripples.findIndex(r => r.isFill);
+                if (solidRippleIndex !== -1) {
+                    const sr = this.ripples[solidRippleIndex];
+                    if (sr.r >= sr.maxR) {
+                        // Seamlessly transition HTML background
+                        document.body.style.backgroundColor = '#A7F3D0';
+                        const headerEl = document.querySelector('header');
+                        if (headerEl) {
+                            headerEl.style.backgroundColor = '#A7F3D0';
+                        }
+                        // Remove Wave 1 since background matches its color
+                        this.ripples.splice(solidRippleIndex, 1);
+                    }
+                }
+
+                // Clean up finished ripples
+                for (let i = this.ripples.length - 1; i >= 0; i--) {
+                    const r = this.ripples[i];
+                    if (r.started && r.r >= r.maxR) {
+                        this.ripples.splice(i, 1);
+                    }
+                }
+
+                this.animationFrameId = requestAnimationFrame(() => this.loop());
+            }
+        }
+
+        // Neo-Brutalist Physics-Based Floating Badges
+        function spawnFloatingBadge(text, x, y, type = 'success') {
+            const badge = document.createElement('div');
+            badge.className = 'floating-badge';
+            badge.innerText = text;
+            
+            if (type === 'success') {
+                badge.style.backgroundColor = '#E7F3EC';
+                badge.style.color = '#1E6B3F';
+            } else if (type === 'gold') {
+                badge.style.backgroundColor = '#FEF3C7';
+                badge.style.color = '#D97706';
+            } else if (type === 'failure') {
+                badge.style.backgroundColor = '#FDE8E5';
+                badge.style.color = '#A82222';
+            }
+            
+            badge.style.left = `${x}px`;
+            badge.style.top = `${y}px`;
+            
+            document.body.appendChild(badge);
+            
+            let posY = y;
+            let posX = x - badge.offsetWidth / 2;
+            let velY = -9 - Math.random() * 4;
+            let velX = (Math.random() - 0.5) * 3;
+            let gravity = 0.45;
+            let scale = 0.5;
+            let rotation = (Math.random() - 0.5) * 20;
+            let opacity = 1;
+            
+            badge.style.left = `${posX}px`;
+            
+            function step() {
+                velY += gravity;
+                posY += velY;
+                posX += velX;
+                
+                if (scale < 1.0) {
+                    scale += 0.15;
+                    if (scale > 1.0) scale = 1.0;
+                }
+                
+                opacity -= 0.016;
+                
+                if (opacity <= 0) {
+                    badge.remove();
+                } else {
+                    badge.style.transform = `translate3d(${posX - x}px, ${posY - y}px, 0) scale(${scale}) rotate(${rotation}deg)`;
+                    badge.style.opacity = opacity;
+                    requestAnimationFrame(step);
+                }
+            }
+            
+            requestAnimationFrame(step);
+        }
+
+        // 3D Parallax Hover Tilting & Dynamic Shadow Shifting
+        function setupCardParallax() {
+            const cards = document.querySelectorAll('.tilt-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const percentX = (x - centerX) / centerX;
+                    const percentY = (y - centerY) / centerY;
+                    
+                    const rotateX = -percentY * 7;
+                    const rotateY = percentX * 7;
+                    
+                    const shadowX = 4 - percentX * 4;
+                    const shadowY = 4 - percentY * 4;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.015, 1.015, 1.015)`;
+                    card.style.boxShadow = `${shadowX}px ${shadowY}px 0px 0px #1A1C1C`;
+                });
+                
+                card.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out';
+                
+                card.style.transformStyle = 'preserve-3d';
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                    if (card.classList.contains('neo-shadow-sm')) {
+                        card.style.boxShadow = '2px 2px 0px 0px #1A1C1C';
+                    } else {
+                        card.style.boxShadow = '4px 4px 0px 0px #1A1C1C';
+                    }
+                });
+            });
+        }
+
+
 
         // App state view management
         function showState(stateName) {
@@ -401,6 +1237,15 @@
             document.getElementById('state-incorrect').classList.add('hidden');
             document.getElementById('state-correct').classList.add('hidden');
             document.getElementById('state-practice').classList.add('hidden');
+
+            // Reset background color of body and header if we are leaving the success view
+            if (stateName !== 'correct') {
+                document.body.style.backgroundColor = '#FAF8F6';
+                const headerEl = document.querySelector('header');
+                if (headerEl) {
+                    headerEl.style.backgroundColor = '#ffffff';
+                }
+            }
 
             if (stateName === 'guessing') {
                 document.getElementById('state-guessing').classList.remove('hidden');
@@ -411,9 +1256,22 @@
             } else if (stateName === 'practice') {
                 document.getElementById('state-practice').classList.remove('hidden');
             }
+
+            // Restart gloss wipe sweep animations exactly once for newly generated cards in this view
+            triggerShineAnimations();
         }
 
-        // Client-side backup dictionary for example sentences (prototype seeder fallback)
+        // Helper to trigger gloss wipe shine animations exactly once when cards are generated
+        function triggerShineAnimations() {
+            const cards = document.querySelectorAll('.shine-sweep');
+            cards.forEach(card => {
+                card.classList.remove('shine-sweep-active');
+                void card.offsetWidth; // Force a CSS repaint reflow to reset keyframe animations
+                card.classList.add('shine-sweep-active');
+            });
+        }
+
+        // Client-side backup dictionary for example sentences
         const fallbackSentences = {
             "meticulous": "He was meticulous in his research, checking every source twice.",
             "ephemeral": "The beauty of cherry blossoms is ephemeral, lasting only a few days.",
@@ -433,7 +1291,6 @@
                 document.getElementById('guessing-word-type').innerText = wordData.type || 'ADJECTIVE';
                 document.getElementById('guessing-word-name').innerText = wordData.word || 'Unknown';
                 
-                // Display a real example sentence if available in fallback dictionary or unique in DB
                 const lowercaseWord = (wordData.word || '').toLowerCase();
                 let displaySentence = wordData.sentence || 'No hint available.';
                 if (fallbackSentences[lowercaseWord]) {
@@ -459,6 +1316,9 @@
                 document.getElementById('guess-input').value = '';
                 
                 showState('guessing');
+                
+                // Re-trigger parallax binding in case elements re-rendered
+                setupCardParallax();
             } catch (error) {
                 console.error('Error seeding/fetching word details:', error);
             }
@@ -466,7 +1326,10 @@
 
         // Trigger on load
         window.addEventListener('DOMContentLoaded', () => {
+            canvasEngine = new CanvasParticleEngine('celebration-canvas');
+            rippleEngine = new CanvasRippleEngine('ripple-canvas');
             fetchWord(currentWordId);
+            setupCardParallax();
         });
 
         // Submit guess to backend (Star Rating evaluation)
@@ -474,7 +1337,6 @@
             const guessInput = document.getElementById('guess-input').value.trim();
             if (!guessInput) return;
 
-            // Simple loading state
             const guessBtn = document.getElementById('submit-guess-btn');
             const originalBtnText = guessBtn.innerText;
             guessBtn.innerText = "EVALUATING...";
@@ -494,31 +1356,112 @@
                 }
 
                 const resultText = await response.text();
-                // The result is an integer score (1-5) returned as a string from Spring Boot/Python
                 const rating = parseInt(resultText.trim()) || 1;
 
                 if (rating >= 4) {
-                    // Populate State 3 (Success)
-                    document.getElementById('correct-user-guess').innerText = guessInput;
+                    // Transition to success state immediately so stars exist in DOM
                     showState('correct');
-                } else {
-                    // Populate State 2 (Failure/Incorrect)
-                    document.getElementById('incorrect-user-guess').innerText = guessInput;
-                    
-                    // Render red/orange stars
-                    const starsContainer = document.getElementById('incorrect-stars-container');
-                    starsContainer.innerHTML = '';
-                    for (let i = 1; i <= 5; i++) {
-                        const starSpan = document.createElement('span');
-                        starSpan.className = 'material-symbols-outlined text-2xl';
-                        if (i <= rating) {
-                            starSpan.className += ' material-fill';
-                        }
-                        starSpan.innerText = 'star';
-                        starsContainer.appendChild(starSpan);
+
+                    // Trigger expanding background ripples seamlessly drawn on canvas
+                    if (rippleEngine) {
+                        rippleEngine.triggerRipples();
                     }
-                    document.getElementById('incorrect-score-text').innerText = `${rating}/5 Stars`;
-                    showState('incorrect');
+                    
+                    // Reset success stars to empty outline states
+                    const starsContainer = document.getElementById('success-stars-container');
+                    const stars = starsContainer.querySelectorAll('span');
+                    stars.forEach(star => {
+                        star.className = 'material-symbols-outlined text-2xl text-gray-300';
+                        star.style.transform = 'scale(1)';
+                    });
+                    
+                    document.getElementById('correct-user-guess').innerText = guessInput;
+                    setupCardParallax();
+
+                    // Sequentially light up stars with chimes and sparkle effects
+                    stars.forEach((star, idx) => {
+                        setTimeout(() => {
+                            // Style as filled golden star
+                            star.className = 'material-symbols-outlined text-2xl text-[#1E6B3F] material-fill step-pop';
+                            
+                            // Play ascending pentatonic chime
+                            AudioSynth.playStarChime(idx);
+                            
+                            // Trigger star-level canvas sparkle burst
+                            const rect = star.getBoundingClientRect();
+                            const x = rect.left + rect.width / 2;
+                            const y = rect.top + rect.height / 2;
+                            canvasEngine.triggerStarSparkle(x, y);
+                            
+                            // Spawn golden mini-badge
+                            spawnFloatingBadge('★', x, y - 10, 'gold');
+                            
+                            // Once the final star lights up, trigger the massive celebration
+                            if (idx === stars.length - 1) {
+                                setTimeout(() => {
+                                    // Play final triumphant chord flourish
+                                    AudioSynth.playFinalSuccessFlourish();
+                                    
+                                    // Trigger massive canvas confetti ribbons, emojis, stars
+                                    canvasEngine.triggerCelebration();
+                                    
+                                    // Spawn massive +100 XP game badges
+                                    const successTitle = document.querySelector('#state-correct h2');
+                                    const titleRect = successTitle.getBoundingClientRect();
+                                    const titleX = titleRect.left + titleRect.width / 2;
+                                    const titleY = titleRect.top - 20;
+                                    spawnFloatingBadge("+100 XP", titleX, titleY, 'success');
+                                    spawnFloatingBadge("MASTERED!", titleX, titleY + 50, 'gold');
+                                }, 250);
+                            }
+                        }, idx * 180);
+                    });
+
+                } else {
+                    // Comical Failure: Play cartoon womp-womp
+                    AudioSynth.playFailureWomp();
+
+                    // Shake the State 1 word card
+                    const wordCard = document.querySelector('#state-guessing .tilt-card');
+                    wordCard.classList.add('shake-card');
+
+                    // Spawn Try Again floaty badge from submit button
+                    const btnRect = guessBtn.getBoundingClientRect();
+                    spawnFloatingBadge("TRY AGAIN!", btnRect.left + btnRect.width / 2, btnRect.top - 35, 'failure');
+
+                    // Let shake finish, then slide to State 2
+                    setTimeout(() => {
+                        wordCard.classList.remove('shake-card');
+                        
+                        // Populate State 2
+                        document.getElementById('incorrect-user-guess').innerText = guessInput;
+                        
+                        // Render incorrect stars sequentially
+                        const starsContainer = document.getElementById('incorrect-stars-container');
+                        starsContainer.innerHTML = '';
+                        for (let i = 1; i <= 5; i++) {
+                            const starSpan = document.createElement('span');
+                            starSpan.className = 'material-symbols-outlined text-2xl transition-all duration-300';
+                            if (i <= rating) {
+                                starSpan.className += ' material-fill';
+                            }
+                            starSpan.innerText = 'star';
+                            starsContainer.appendChild(starSpan);
+                            
+                            // Animate stars pop-in
+                            starSpan.style.opacity = '0';
+                            starSpan.style.transform = 'scale(0.5)';
+                            setTimeout(() => {
+                                starSpan.style.opacity = '1';
+                                starSpan.style.transform = 'scale(1)';
+                                starSpan.classList.add('step-pop');
+                                setTimeout(() => starSpan.classList.remove('step-pop'), 400);
+                            }, i * 90);
+                        }
+                        document.getElementById('incorrect-score-text').innerText = `${rating}/5 Stars`;
+                        showState('incorrect');
+                        setupCardParallax();
+                    }, 500);
                 }
             } catch (error) {
                 console.error('Error submitting meaning guess:', error);
@@ -539,11 +1482,9 @@
 
         // Transition to Practice Arena
         function goToPractice() {
-            // Reset practice loop variables
             currentSentenceIndex = 0;
             correctSentences = [];
             
-            // Hide locked slots, clear inputs
             for (let i = 1; i <= 5; i++) {
                 document.getElementById(`sentence-slot-${i}`).classList.add('hidden');
                 document.getElementById(`sentence-text-${i}`).innerText = '';
@@ -558,29 +1499,25 @@
 
             updatePracticeUI();
             showState('practice');
+            setupCardParallax();
         }
 
         // Update Practice Arena Stepper & Placeholders
         function updatePracticeUI() {
-            // Update Step Indicators
             for (let i = 1; i <= 5; i++) {
                 const stepEl = document.getElementById(`step-${i}`);
                 if (i <= currentSentenceIndex) {
-                    // Completed steps: Green background, showing checkmark icon
                     stepEl.className = "flex items-center justify-center w-8 h-8 rounded-full border-2 border-[#1A1C1C] bg-[#E7F3EC] font-bold text-[#1E6B3F] text-sm font-sans neo-shadow-sm";
                     stepEl.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
                 } else if (i === currentSentenceIndex + 1) {
-                    // Active step: Bold outline, neutral/white background, showing step number
                     stepEl.className = "flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#1A1C1C] bg-white font-black text-sm font-sans shadow-[2px_2px_0px_0px_#1A1C1C]";
                     stepEl.innerHTML = i;
                 } else {
-                    // Locked steps: Standard gray outline, lighter background, showing step number
                     stepEl.className = "flex items-center justify-center w-8 h-8 rounded-full border-2 border-gray-200 bg-gray-50 text-gray-400 font-bold text-sm font-sans";
                     stepEl.innerHTML = i;
                 }
             }
 
-            // Render placeholders for future slot numbers
             const placeholdersContainer = document.getElementById('placeholders-container');
             placeholdersContainer.innerHTML = '';
             const remainingSteps = 5 - (currentSentenceIndex + 1);
@@ -599,7 +1536,6 @@
                 }
             }
 
-            // Update Label for Current Attempt
             const attemptLabel = document.getElementById('active-sentence-label');
             if (attemptLabel) {
                 attemptLabel.innerText = `CURRENT ATTEMPT (SENTENCE 0${currentSentenceIndex + 1})`;
@@ -611,13 +1547,11 @@
             const sentenceText = document.getElementById('sentence-input').value.trim();
             if (!sentenceText) return;
 
-            // Set loading state
             const submitBtn = document.getElementById('sentence-submit-btn');
             const btnText = document.getElementById('sentence-btn-text');
             submitBtn.disabled = true;
             btnText.innerText = "...";
 
-            // Clear previous feedback
             const feedbackEl = document.getElementById('sentence-feedback');
             const inputBox = document.getElementById('sentence-input-box');
             feedbackEl.classList.add('hidden');
@@ -639,36 +1573,80 @@
                 const result = await response.text();
                 
                 if (result.trim() === 'CORRECT') {
-                    // Update state variables
                     currentSentenceIndex++;
                     correctSentences.push(sentenceText);
 
-                    // Reveal completed card slot
+                    // Reveal completed slot card
                     const slot = document.getElementById(`sentence-slot-${currentSentenceIndex}`);
                     const slotText = document.getElementById(`sentence-text-${currentSentenceIndex}`);
                     slotText.innerText = sentenceText;
                     slot.classList.remove('hidden');
+                    
+                    // Add spring pop entry animation
+                    slot.classList.add('step-pop');
+                    setTimeout(() => slot.classList.remove('step-pop'), 400);
 
-                    // Reset text area
                     document.getElementById('sentence-input').value = '';
 
-                    // Check if complete
+                    // Play bright sentence chime
+                    AudioSynth.playSentenceSuccess();
+
+                    // Mini sparkle explosion from submit button
+                    const btnRect = submitBtn.getBoundingClientRect();
+                    const btnX = btnRect.left + btnRect.width / 2;
+                    const btnY = btnRect.top + btnRect.height / 2;
+                    canvasEngine.triggerMiniBurst(btnX, btnY);
+
+                    // Spawn game badge
+                    const badgeTexts = ["+20 XP", "SPLENDID!", "GREAT JOB!", "SPOT ON!", "EXCELLENT!"];
+                    const randText = badgeTexts[Math.floor(Math.random() * badgeTexts.length)];
+                    spawnFloatingBadge(randText, btnX, btnY - 30, 'success');
+
                     if (currentSentenceIndex >= 5) {
-                        // Hide active container and placeholders
                         document.getElementById('active-sentence-container').classList.add('hidden');
                         document.getElementById('placeholders-container').innerHTML = '';
                         
-                        // Show complete card
-                        document.getElementById('practice-complete-card').classList.remove('hidden');
+                        setTimeout(() => {
+                            const completeCard = document.getElementById('practice-complete-card');
+                            completeCard.classList.remove('hidden');
+                            completeCard.classList.add('step-pop');
+                            
+                            // Play final triumphant arpeggio and massive confetti celebration
+                            AudioSynth.playFinalSuccessFlourish();
+                            canvasEngine.triggerCelebration();
+                            
+                            const cardRect = completeCard.getBoundingClientRect();
+                            const cardX = cardRect.left + cardRect.width / 2;
+                            spawnFloatingBadge("PRACTICE COMPLETE!", cardX, cardRect.top + 30, 'gold');
+                            spawnFloatingBadge("+100 XP BONUS", cardX, cardRect.top + cardRect.height - 30, 'success');
+                            setupCardParallax();
+                        }, 300);
                     } else {
-                        // Advance UI
                         updatePracticeUI();
+                        
+                        // Scale pop the active stepper indicator
+                        const stepEl = document.getElementById(`step-${currentSentenceIndex + 1}`);
+                        if (stepEl) {
+                            stepEl.classList.add('step-pop');
+                            setTimeout(() => stepEl.classList.remove('step-pop'), 400);
+                        }
                     }
                 } else {
-                    // Highlight input box in red and show correction feedback
-                    inputBox.className = "relative w-full border-2 border-[#A82222] shadow-[4px_4px_0px_0px_#1A1C1C] rounded-xl bg-[#FDE8E5] flex items-center pr-3 transition-colors duration-200";
+                    // Highlight input in red, play boing sound, shake card
+                    inputBox.className = "relative w-full border-2 border-[#A82222] shadow-[4px_4px_0px_0px_#1A1C1C] rounded-xl bg-[#FDE8E5] flex items-center pr-3 transition-colors duration-200 shake-card";
                     feedbackEl.innerText = "Sentence usage is incorrect. Make sure you use the word correctly in context.";
                     feedbackEl.classList.remove('hidden');
+                    
+                    // Play comical rubbery boing sound
+                    AudioSynth.playSentenceFailure();
+
+                    // Spawn Try Again badge
+                    const btnRect = submitBtn.getBoundingClientRect();
+                    spawnFloatingBadge("TRY AGAIN!", btnRect.left + btnRect.width / 2, btnRect.top - 30, 'failure');
+
+                    setTimeout(() => {
+                        inputBox.classList.remove('shake-card');
+                    }, 500);
                 }
             } catch (error) {
                 console.error('Error submitting sentence:', error);
@@ -682,7 +1660,6 @@
 
         // Loop back to next word (cyclic seeding support for prototype)
         function loadNextWord() {
-            // Shift ID between 1, 2, and 3
             currentWordId = (currentWordId % 3) + 1;
             fetchWord(currentWordId);
         }
