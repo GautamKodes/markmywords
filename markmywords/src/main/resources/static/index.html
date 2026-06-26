@@ -25,38 +25,6 @@
     </script>
     
     <style>
-        /* Premium Subtle Animated Dot Grid Background */
-        .ambient-grid-container {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            user-select: none;
-            z-index: -2;
-            overflow: hidden;
-            animation: grid-breathe 20s ease-in-out infinite alternate;
-        }
-        .ambient-dot-grid {
-            background-image: radial-gradient(rgba(26, 28, 28, 0.28) 1px, transparent 1px);
-            background-size: 28px 28px;
-            animation: grid-drift 90s linear infinite;
-            will-change: transform;
-        }
-        @keyframes grid-drift {
-            from {
-                transform: translate3d(0, 0, 0);
-            }
-            to {
-                transform: translate3d(-28px, -28px, 0);
-            }
-        }
-        @keyframes grid-breathe {
-            0% {
-                opacity: 0.55;
-            }
-            100% {
-                opacity: 0.95;
-            }
-        }
 
         body {
             background-color: #FAF8F6; /* Warm off-white background */
@@ -194,10 +162,8 @@
     </style>
 </head>
 <body class="font-sans text-[#1A1C1C] min-h-screen flex flex-col justify-between relative overflow-x-hidden">
-    <!-- Premium Subtle Animated Dot Grid Background -->
-    <div id="ambient-grid-bg" class="ambient-grid-container">
-        <div class="ambient-dot-grid w-[120%] h-[120%] absolute -top-[10%] -left-[10%]"></div>
-    </div>
+    <!-- Premium Dynamic Grid & Connecting Letters Background Canvas -->
+    <canvas id="grid-canvas" class="fixed inset-0 w-full h-full pointer-events-none" style="z-index: -2;"></canvas>
 
     <!-- Canvas for high-performance particle celebrations and cursor trails -->
     <canvas id="celebration-canvas"></canvas>
@@ -300,56 +266,57 @@
                 <!-- Celebration & Streak Header -->
                 <div class="text-center mb-8">
                     <!-- 5 stars animated via JS -->
-                    <div id="success-stars-container" class="flex justify-center gap-1 mb-3 text-gray-200">
-                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
-                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
-                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
-                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
-                        <span class="material-symbols-outlined text-2xl transition-all duration-300">star</span>
+                    <div id="success-stars-container" class="flex justify-center gap-1 mb-4 text-gray-200">
+                        <span class="material-symbols-outlined text-3xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-3xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-3xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-3xl transition-all duration-300">star</span>
+                        <span class="material-symbols-outlined text-3xl transition-all duration-300">star</span>
                     </div>
 
-                    <h2 class="text-4xl font-bold font-serif mb-2">Splendid!</h2>
-                    <p class="text-gray-500 font-sans font-medium">You mastered this word.</p>
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-serif mb-2">Splendid!</h2>
+                    <p class="text-base text-gray-500 font-sans font-medium">You mastered this word.</p>
                 </div>
 
-                <!-- Side-by-Side Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-3xl mx-auto items-stretch mb-8 mt-8">
+                <!-- Side-by-Side Cards (Symmetrical 2-column grid, max-w-4xl, gap-8 for spaciousness) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch mb-10 mt-8">
                     <!-- Left Card: Word & Definition (Green) -->
-                    <div class="md:col-span-3 bg-white neo-border neo-shadow rounded-2xl p-6 flex flex-col justify-between relative tilt-card shine-sweep shine-sweep-active">
-                        <div class="absolute top-6 right-6 text-[#1E6B3F]">
-                            <span class="material-symbols-outlined text-2xl material-fill">check_circle</span>
+                    <div class="bg-white neo-border neo-shadow rounded-2xl p-8 flex flex-col justify-between relative tilt-card shine-sweep shine-sweep-active">
+                        <div class="absolute top-8 right-8 text-[#1E6B3F]">
+                            <span class="material-symbols-outlined text-3xl material-fill">check_circle</span>
                         </div>
                         <div>
-                            <div class="inline-block px-3 py-0.5 bg-white neo-border rounded-full text-[10px] font-bold font-sans uppercase tracking-wider mb-4">
+                            <div class="inline-block px-3.5 py-1 bg-white neo-border rounded-full text-xs font-bold font-sans uppercase tracking-wider mb-6">
                                 <span id="correct-word-type">loading...</span>
                             </div>
-                            <h3 id="correct-word-name" class="text-3xl font-bold font-serif mb-3">loading...</h3>
-                            <p id="correct-definition-text" class="text-sm font-sans text-gray-700 leading-relaxed mb-4">
+                            <h3 id="correct-word-name" class="text-4xl font-bold font-serif mb-4">loading...</h3>
+                            <p id="correct-definition-text" class="text-base font-sans text-gray-700 leading-relaxed">
                                 loading...
                             </p>
                         </div>
                     </div>
 
                     <!-- Right Card: User Guess (White) -->
-                    <div class="md:col-span-2 bg-white neo-border neo-shadow rounded-2xl p-6 flex flex-col justify-between tilt-card">
+                    <div class="bg-white neo-border neo-shadow rounded-2xl p-8 flex flex-col justify-between tilt-card">
                         <div>
-                            <span class="block text-[10px] font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-4">
+                            <span class="block text-xs font-extrabold font-sans uppercase tracking-widest text-gray-400 mb-6">
                                 YOUR GUESS AT THE MEANING
                             </span>
-                            <div class="bg-[#E7F3EC] neo-border rounded-xl p-3 flex justify-between items-center">
-                                <span id="correct-user-guess" class="font-sans font-medium text-xs text-gray-700 break-all flex-1 mr-4">loading...</span>
-                                <div class="w-4 h-4 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
-                                    <span class="material-symbols-outlined text-[10px] font-bold">check</span>
+                            <div class="bg-[#E7F3EC] neo-border rounded-xl p-4 flex justify-between items-center">
+                                <span id="correct-user-guess" class="font-sans font-medium text-sm text-gray-700 break-all flex-1 mr-4">loading...</span>
+                                <div class="w-6 h-6 rounded-full bg-[#1E6B3F] flex items-center justify-center text-white flex-shrink-0">
+                                    <span class="material-symbols-outlined text-xs font-bold">check</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-6 text-right">
-                            <button onclick="loadNextWord()" class="px-5 py-2.5 bg-white neo-border neo-shadow-sm rounded-xl font-bold font-sans text-xs tracking-wide neo-btn flex items-center gap-1.5 ml-auto">
-                                <span>Continue</span>
-                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
-                            </button>
-                        </div>
                     </div>
+                </div>
+
+                <!-- Center Continue Action (Symmetrical with the incorrect state layout) -->
+                <div class="text-center mt-8">
+                    <button onclick="loadNextWord()" class="px-8 py-3 bg-white neo-border neo-shadow rounded-xl font-bold font-sans tracking-wide neo-btn uppercase">
+                        CONTINUE &rarr;
+                    </button>
                 </div>
             </div>
 
@@ -488,12 +455,13 @@
     <!-- CLIENT LOGIC -->
     <script>
         // Global variables
-        let currentWordId = 1;
+        let currentWordId = Math.floor(Math.random() * 920) + 1;
         let wordData = null;
         let currentSentenceIndex = 0; // 0 means starting, max 5
         let correctSentences = [];
         let canvasEngine = null;
         let rippleEngine = null;
+        let gridEngine = null;
 
         // Web Audio API Synthesizer for high-fidelity retro & game sound effects (offline-friendly)
         const AudioSynth = {
@@ -1016,6 +984,62 @@
             }
         }
 
+        // High-Performance Canvas Dynamic Dot Grid Engine (Clean drifting background grid)
+        class CanvasGridEngine {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                if (!this.canvas) return;
+                this.ctx = this.canvas.getContext('2d');
+                this.offsetX = 0;
+                this.offsetY = 0;
+                this.spacing = 28;
+                this.lastTime = performance.now();
+                
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+
+                this.loop();
+            }
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            loop() {
+                const now = performance.now();
+                const delta = now - this.lastTime;
+                this.lastTime = now;
+
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 1. Update Grid Offset (Slow Drift)
+                // 90 seconds for full 28px cycle -> 28px / 90000ms = ~0.00031px per ms
+                const driftStep = 0.00031 * delta;
+                this.offsetX = (this.offsetX + driftStep) % this.spacing;
+                this.offsetY = (this.offsetY + driftStep) % this.spacing;
+
+                const startX = -this.spacing + this.offsetX;
+                const startY = -this.spacing + this.offsetY;
+                const radius = 1.0; // Sharp and crisp 1px radius dot
+
+                // 2. Draw Background Dot Grid
+                this.ctx.save();
+                this.ctx.fillStyle = 'rgba(26, 28, 28, 0.35)'; // Completely solid and static, no breathing!
+                
+                for (let x = startX; x < this.canvas.width + this.spacing; x += this.spacing) {
+                    for (let y = startY; y < this.canvas.height + this.spacing; y += this.spacing) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                }
+                this.ctx.restore();
+
+                requestAnimationFrame(() => this.loop());
+            }
+        }
+
         // High-Performance hardware-accelerated Canvas Success Background Ripple Engine
         class CanvasRippleEngine {
             constructor(canvasId) {
@@ -1284,13 +1308,13 @@
                 }
             }
 
-            // Show/hide the ambient dot grid background based on the state page
-            const gridBg = document.getElementById('ambient-grid-bg');
-            if (gridBg) {
+            // Show/hide the ambient dot grid background canvas based on the state page
+            const gridCanvas = document.getElementById('grid-canvas');
+            if (gridCanvas) {
                 if (stateName === 'correct' || stateName === 'incorrect') {
-                    gridBg.classList.add('hidden');
+                    gridCanvas.style.display = 'none';
                 } else {
-                    gridBg.classList.remove('hidden');
+                    gridCanvas.style.display = 'block';
                 }
             }
 
@@ -1406,6 +1430,9 @@
             // Set up auto-expanding textareas
             bindAutoExpand('guess-input', submitGuess);
             bindAutoExpand('sentence-input', submitSentence);
+
+            // Set up dynamic dot grid background engine
+            gridEngine = new CanvasGridEngine('grid-canvas');
         });
 
         // Submit guess to backend (Star Rating evaluation)
@@ -1747,9 +1774,9 @@
             }
         }
 
-        // Loop back to next word (cyclic seeding support for prototype)
+        // Pick a random word from our 920-word dataset
         function loadNextWord() {
-            currentWordId = (currentWordId % 3) + 1;
+            currentWordId = Math.floor(Math.random() * 920) + 1;
             fetchWord(currentWordId);
         }
     </script>
