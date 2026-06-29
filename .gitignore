@@ -5,3 +5,6 @@ MarkMyWords.md
 ROADMAP.md
 __pycache__/
 *.pyc
+populate_db.py
+DatabaseGenerator.py
+data.sql

@@ -44,10 +44,10 @@ public class WordsService {
         Word word = wordsRepository.findById(wordId)
                 .orElseThrow(() -> new IllegalArgumentException("Word not found in database"));
 
-        ValidateMeaningRequest requesPayload = new ValidateMeaningRequest(word.getWord(), meaning);
+        ValidateMeaningRequest requestPayload = new ValidateMeaningRequest(word.getWord(), meaning);
 
         ValidateMeaningResponse responsePayload = restClient.post().uri("http://localhost:8000/validateMeaning")
-                .body(requesPayload)
+                .body(requestPayload)
                 .retrieve()
                 .body(ValidateMeaningResponse.class);
 

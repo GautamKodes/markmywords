@@ -14,6 +14,7 @@ public class Word {
     private String type;
     private String sentence;
     private String meaning;
+    private String domain;
 
     public Long getId(){
         return id;
@@ -30,12 +31,14 @@ public class Word {
     public String getMeaning(){
         return meaning;
     }
+    public String getDomain(){ return domain; }
     public Word(){}
 
-    public Word(String word, String type, String sentence, String meaning){
+    public Word(String word, String type, String sentence, String meaning, String domain){
         this.word = word;
         this.type = type;
         this.sentence = sentence;
         this.meaning = meaning;
+        this.domain = domain;
     }
 }
