@@ -1,6 +1,7 @@
 package io.github.gautamKodes.vocabulary_webapp.words;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -10,6 +11,9 @@ import java.util.Optional;
 public class WordsService {
     private final WordsRepository wordsRepository;
     private final RestClient restClient;
+
+    @Value("${app.python-service-url")
+    private String pythonServiceUrl;
 
 
     @Autowired
@@ -28,7 +32,7 @@ public class WordsService {
 
         ValidationRequest requestPayload = new ValidationRequest(word.getWord(), sentence);
 
-        ValidationResponse responsePayload = restClient.post().uri("http://localhost:8000/validate")
+        ValidationResponse responsePayload = restClient.post().uri(pythonServiceUrl+"/validate")
                 .body(requestPayload)
                 .retrieve()
                 .body(ValidationResponse.class);
@@ -46,7 +50,7 @@ public class WordsService {
 
         ValidateMeaningRequest requestPayload = new ValidateMeaningRequest(word.getWord(), meaning);
 
-        ValidateMeaningResponse responsePayload = restClient.post().uri("http://localhost:8000/validateMeaning")
+        ValidateMeaningResponse responsePayload = restClient.post().uri(pythonServiceUrl+"/validateMeaning")
                 .body(requestPayload)
                 .retrieve()
                 .body(ValidateMeaningResponse.class);

@@ -7,4 +7,7 @@ __pycache__/
 *.pyc
 populate_db.py
 DatabaseGenerator.py
+markmywords/src/main/java/io/github/gautamKodes/vocabulary_webapp/words/data.sql
+**/target/
+DatabaseGenerator.py
 data.sql
